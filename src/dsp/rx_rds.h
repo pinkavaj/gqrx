@@ -28,7 +28,6 @@
 #include <gnuradio/filter/fir_filter_ccf.h>
 #include <gnuradio/filter/fir_filter_fff.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_fcf.h>
-#include <gnuradio/filter/freq_xlating_fir_filter_ccf.h>
 #include <gnuradio/digital/constellation_receiver_cb.h>
 #include <gnuradio/blocks/keep_one_in_n.h>
 #include <gnuradio/digital/diff_decoder_bb.h>
@@ -81,7 +80,6 @@ private:
     gr::filter::fir_filter_ccc::sptr  d_bpf;
     gr::filter::fir_filter_ccf::sptr  d_bpf2;
     gr::filter::freq_xlating_fir_filter_fcf::sptr f_fxff;
-    gr::filter::freq_xlating_fir_filter_ccf::sptr f_fxff_ccf;
     std::vector<float> f_rrcf;
     gr::digital::constellation_receiver_cb::sptr d_mpsk;
     gr::blocks::keep_one_in_n::sptr b_koin;
