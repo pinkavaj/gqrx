@@ -56,31 +56,20 @@ rx_rds::rx_rds(double sample_rate)
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (char))),
       d_sample_rate(sample_rate)
 {
-    const int decimation = d_sample_rate / 2375;
+    const int bit_rate = 1187.5;
+    const int decimation = round(d_sample_rate / bit_rate);
 
-    d_taps2 = gr::filter::firdes::low_pass(2500.0, d_sample_rate, 2400, 2000);
-
-    f_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(decimation, d_taps2, 57000, d_sample_rate);
-
-    f_rrcf = gr::filter::firdes::root_raised_cosine(1, sample_rate/decimation, 2375, 1, 100);
-    d_bpf2 = gr::filter::fir_filter_ccf::make(1, f_rrcf);
-
+    f_rrcf = gr::filter::firdes::root_raised_cosine(1, d_sample_rate, 2*bit_rate, 1, 512);
+    f_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(decimation, f_rrcf, 57000, d_sample_rate);
     gr::digital::constellation_sptr p_c = gr::digital::constellation_bpsk::make()->base();
     d_mpsk = gr::digital::constellation_receiver_cb::make(p_c, 1*M_PI/100.0, -0.06, 0.06);
-
-    b_koin = gr::blocks::keep_one_in_n::make(sizeof(unsigned char), 2);
-
     d_ddbb = gr::digital::diff_decoder_bb::make(2);
-
     rds_decoder = gr::rds::decoder::make(0, 0);
     rds_parser = gr::rds::parser::make(1, 0);
 
-    /* connect filter */
     connect(self(), 0, f_fxff, 0);
-    connect(f_fxff, 0, d_bpf2, 0);
-    connect(d_bpf2, 0, d_mpsk, 0);
-    connect(d_mpsk, 0, b_koin, 0);
-    connect(b_koin, 0, d_ddbb, 0);
+    connect(f_fxff, 0, d_mpsk, 0);
+    connect(d_mpsk, 0, d_ddbb, 0);
     connect(d_ddbb, 0, self(), 0);
 }
 
